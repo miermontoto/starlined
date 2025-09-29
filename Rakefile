@@ -20,12 +20,12 @@ end
 desc "Open an interactive console with the gem loaded"
 task :console do
   require "pry"
-  require_relative "lib/mier_output"
-  include MierOutput::Messages
-  runner = MierOutput::Runner.new
-  puts "MierOutput loaded! Available:"
+  require_relative "lib/starlined"
+  include Starlined::Messages
+  runner = Starlined::Runner.new
+  puts "Starlined loaded! Available:"
   puts "  - Messages module included (info, warn, error, success, etc.)"
-  puts "  - runner = MierOutput::Runner.new"
-  puts "  - MierOutput::Animation"
+  puts "  - runner = Starlined::Runner.new"
+  puts "  - Starlined::Animation"
   Pry.start
 end
