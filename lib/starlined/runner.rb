@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'open3'
-require 'colorize'
+require "open3"
+require "colorize"
 
 module Starlined
   class Runner
@@ -13,7 +13,7 @@ module Starlined
       @animation = nil
     end
 
-    def start(message, steps = 0)
+    def start(message, steps: 0)
       stop_animation if @animation
       @animation = Animation.new(message, steps)
       @animation
@@ -34,7 +34,7 @@ module Starlined
         print_err,
         aka: aka,
         no_count: no_count,
-        sudo: needs_sudo
+        sudo: needs_sudo,
       )
     end
 
@@ -75,15 +75,15 @@ module Starlined
     end
 
     def handle_sudo
-      needs_password = !system('sudo -n true &>/dev/null')
+      needs_password = !system("sudo -n true &>/dev/null")
 
-      if needs_password || RUBY_PLATFORM.include?('darwin')
+      if needs_password || RUBY_PLATFORM.include?("darwin")
         stop_animation
 
         if needs_password
           # alertar al usuario con diferentes métodos
           print "\a" # terminal bell
-          system('tput bel 2>/dev/null') # alternative bell
+          system("tput bel 2>/dev/null") # alternative bell
           Messages.info("Password required")
         end
 

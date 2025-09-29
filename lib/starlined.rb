@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'open3'
-require 'colorize'
+require "open3"
+require "colorize"
 
-require_relative 'starlined/version'
-require_relative 'starlined/configuration'
-require_relative 'starlined/animation'
-require_relative 'starlined/messages'
-require_relative 'starlined/runner'
+require_relative "starlined/version"
+require_relative "starlined/configuration"
+require_relative "starlined/animation"
+require_relative "starlined/messages"
+require_relative "starlined/runner"
 
 module Starlined
   class << self

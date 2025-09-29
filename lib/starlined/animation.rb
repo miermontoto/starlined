@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'colorize'
+require "colorize"
 
 module Starlined
   class Animation
@@ -136,7 +136,7 @@ module Starlined
 
       # cambiar el sentido de movimiento si se toca alguno de los bordes
       @move = @pos.first == config.stars_range.first ? 1 :
-              @pos.last == config.stars_range.last ? -1 : @move
+        @pos.last == config.stars_range.last ? -1 : @move
     end
 
     def update_alias_timer

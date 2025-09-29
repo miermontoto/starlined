@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'colorize'
+require "colorize"
 
 module Starlined
   module Messages
@@ -8,24 +8,24 @@ module Starlined
 
     def error(message = nil, context = nil)
       clear_line
-      output = "\r[#{'FAILED'.red}] #{context || 'Operation failed'}"
+      output = "\r[#{"FAILED".red}] #{context || "Operation failed"}"
       output += " (#{message})" unless message.nil?
       puts output
     end
 
     def info(message)
       clear_line
-      puts "\r[ #{'INFO'.blue} ] #{message}"
+      puts "\r[ #{"INFO".blue} ] #{message}"
     end
 
     def warn(message)
       clear_line
-      puts "\r[ #{'WARN'.yellow} ] #{message}"
+      puts "\r[ #{"WARN".yellow} ] #{message}"
     end
 
     def success(message, time = nil)
       clear_line
-      output = "\r[  #{'OK'.green}  ] #{message}"
+      output = "\r[  #{"OK".green}  ] #{message}"
       if time
         dots = "." * [3, 36 - message.length - time.to_s.length].max
         output += " #{dots.bold.gray} #{time}s"
@@ -36,12 +36,12 @@ module Starlined
     def verbose(message)
       return unless Starlined.configuration.verbose
       clear_line
-      puts "\r[#{'VRBOSE'.light_black}] #{message}"
+      puts "\r[#{"VRBOSE".light_black}] #{message}"
     end
 
     def ask(prompt)
       clear_line
-      print "\r[  #{'??'.light_blue}  ] #{prompt}: "
+      print "\r[  #{"??".light_blue}  ] #{prompt}: "
       STDIN.gets.chomp
     end
 
