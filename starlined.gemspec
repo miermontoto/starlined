@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # dependencias en tiempo de ejecución
-  spec.add_dependency "colorize", "~> 0.8"
+  spec.add_dependency "colorize", ">= 0.8"
 
   # dependencias de desarrollo
   spec.add_development_dependency "bundler", "~> 2.0"
