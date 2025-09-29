@@ -5,18 +5,16 @@ require_relative "lib/starlined/version"
 Gem::Specification.new do |spec|
   spec.name = "starlined"
   spec.version = Starlined::VERSION
-  spec.authors = ["Mier"]
-  spec.email = ["your.email@example.com"]
+  spec.authors = ["mier"]
+  spec.email = ["ruby@mier.info"]
 
   spec.summary = "Terminal output utilities with animated progress indicators"
-  spec.description = "A Ruby gem providing beautiful terminal output with animated star indicators, colored messages, and command execution with visual feedback"
-  spec.homepage = "https://github.com/yourusername/starlined"
+  spec.homepage = "https://github.com/miermontoto/starlined"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.6.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
-  spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
 
   # especificar qué archivos deben incluirse en el gem
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
