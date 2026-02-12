@@ -38,7 +38,7 @@ module Starlined
     end
 
     def pass_step
-      start_step
+      @animation&.increment_step
     end
 
     private
@@ -71,7 +71,7 @@ module Starlined
       result = callback.call
       end_step(aka: aka, no_count: no_count)
 
-      handle_error(result, print_err) unless result.last.success?
+      handle_error(result, print_err, aka) unless result.last.success?
 
       result
     end
@@ -102,11 +102,12 @@ module Starlined
       @animation&.start unless @running_instances.zero?
     end
 
-    def handle_error(result, print_err)
+    def handle_error(result, print_err, aka = nil)
       return unless print_err
 
+      message = @animation&.message
       stop_animation
-      Messages.error(nil, @animation&.message)
+      Messages.error(aka, message)
 
       puts result[1] # stderr
       puts result[0] if result[1].empty? # stdout si stderr está vacío
