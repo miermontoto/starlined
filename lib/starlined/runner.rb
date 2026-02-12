@@ -1,22 +1,21 @@
 # frozen_string_literal: true
 
-require "open3"
-require "colorize"
+require 'open3'
+require 'colorize'
 
 module Starlined
   class Runner
     attr_reader :animation
 
     def initialize
-      @run_instances = 0
+      @running_instances = 0
       @run_semaphore = Mutex.new
       @animation = nil
     end
 
     def start(message, steps: 0)
-      stop_animation if @animation
+      stop_animation
       @animation = Animation.new(message, steps)
-      @animation
     end
 
     def stop
@@ -26,7 +25,7 @@ module Starlined
       stop_animation
     end
 
-    def run(command, print_err = true, aka: nil, no_count: false)
+    def run(command, print_err: true, aka: nil, no_count: false)
       needs_sudo = !!(command =~ /^sudo/)
 
       execute(
@@ -34,64 +33,73 @@ module Starlined
         print_err,
         aka: aka,
         no_count: no_count,
-        sudo: needs_sudo,
+        sudo: needs_sudo
       )
     end
 
-    def execute(callback, print_err = true, aka: nil, no_count: false, sudo: false)
-      handle_sudo if sudo
+    def pass_step
+      start_step
+    end
 
+    private
+
+    def start_step(aka: nil)
       @run_semaphore.synchronize do
         @animation&.add_alias(aka) unless aka.nil?
 
-        if @run_instances == 0 && @animation
-          @animation.start
-        end
-        @run_instances += 1
+        @animation.start if @running_instances.zero? && @animation
+        @running_instances += 1
       end
 
-      result = callback.call
+      @running_instances
+    end
 
+    def end_step(aka: nil, no_count: false)
       @run_semaphore.synchronize do
-        @run_instances -= 1
+        @running_instances -= 1
         @animation&.increment_step unless no_count
         @animation&.remove_alias(aka) unless aka.nil?
 
-        if @run_instances == 0 && @animation
-          @animation.stop
-        end
+        @animation.stop if @running_instances.zero? && @animation
       end
+    end
+
+    def execute(callback, print_err: true, aka: nil, no_count: false, sudo: false)
+      handle_sudo if sudo
+
+      start_step(aka: aka)
+      result = callback.call
+      end_step(aka: aka, no_count: no_count)
 
       handle_error(result, print_err) unless result.last.success?
 
       result
     end
 
-    private
-
     def stop_animation
+      return unless @animation
+
       @animation&.stop
       @animation = nil
     end
 
     def handle_sudo
-      needs_password = !system("sudo -n true &>/dev/null")
+      needs_password = !system('sudo -n true &>/dev/null')
+      return unless needs_password || RUBY_PLATFORM.include?('darwin')
 
-      if needs_password || RUBY_PLATFORM.include?("darwin")
-        stop_animation
+      stop_animation
 
-        if needs_password
-          # alertar al usuario con diferentes métodos
-          print "\a" # terminal bell
-          system("tput bel 2>/dev/null") # alternative bell
-          Messages.info("Password required")
-        end
-
-        result = system("sudo -v")
-        raise "Sudo privileges not granted" unless result
-
-        @animation&.start if @run_instances != 0
+      if needs_password
+        # alertar al usuario con diferentes métodos
+        print "\a" # terminal bell
+        system('tput bel 2>/dev/null') # alternative bell
+        Messages.info('Password required')
       end
+
+      result = system('sudo -v')
+      raise 'Sudo privileges not granted' unless result
+
+      @animation&.start unless @running_instances.zero?
     end
 
     def handle_error(result, print_err)

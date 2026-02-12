@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "colorize"
+require 'colorize'
 
 module Starlined
   class Animation
     attr_reader :thread, :message, :start_time, :steps, :current_steps
     attr_accessor :aliases
 
-    def initialize(message = "Booting up", steps = 0)
+    def initialize(message = 'Booting up', steps = 0)
       @message = message
       @start_time = Time.now
       @steps = steps
@@ -32,12 +32,14 @@ module Starlined
 
     def start
       return if @running
+
       @running = true
       @thread = Thread.new { animation_loop }
     end
 
     def stop
       return unless @running
+
       @running = false
       @thread&.kill
       @thread = nil
@@ -51,15 +53,17 @@ module Starlined
 
     def add_alias(aka)
       return if aka.nil?
+
       @alias_semaphore.synchronize { @aliases.push(aka) }
     end
 
     def remove_alias(aka)
       return if aka.nil?
+
       @alias_semaphore.synchronize do
         @aliases.delete(aka)
         # ajustar el puntero si se eliminó un elemento antes de la posición actual
-        @alias_pointer = 0 if @alias_pointer >= @aliases.length && @aliases.length > 0
+        @alias_pointer = 0 if @alias_pointer >= @aliases.length && !@aliases.empty?
       end
     end
 
@@ -87,17 +91,17 @@ module Starlined
     end
 
     def build_stars
-      stars = ""
+      stars = ''
       config = Starlined.configuration
 
       config.stars_range.each do |i|
-        if !@pos.include?(i)
-          stars += " "
-        elsif i == @pos[1]
-          stars += "*".bold.red
-        else
-          stars += "*".yellow
-        end
+        stars += if !@pos.include?(i)
+                   ' '
+                 elsif i == @pos[1]
+                   '*'.bold.red
+                 else
+                   '*'.yellow
+                 end
       end
 
       stars
@@ -118,12 +122,12 @@ module Starlined
 
     def current_alias_string
       @alias_semaphore.synchronize do
-        return "" if @aliases.empty?
+        return '' if @aliases.empty?
 
         begin
           @aliases[@alias_pointer].to_s
         rescue NoMethodError, ArgumentError
-          @aliases.first.to_s if @aliases.length > 0
+          @aliases.first.to_s unless @aliases.empty?
         end
       end
     end
@@ -135,8 +139,11 @@ module Starlined
       @pos = @pos.map { |p| (p + @move) % config.stars_range.length }
 
       # cambiar el sentido de movimiento si se toca alguno de los bordes
-      @move = @pos.first == config.stars_range.first ? 1 :
-        @pos.last == config.stars_range.last ? -1 : @move
+      @move = if @pos.first == config.stars_range.first
+                1
+              else
+                @pos.last == config.stars_range.last ? -1 : @move
+              end
     end
 
     def update_alias_timer

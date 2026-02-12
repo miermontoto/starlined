@@ -52,28 +52,11 @@ threads.each(&:join)
 runner.stop
 ```
 
-### animation manipulation/control
-
-```ruby
-animation = Starlined::Animation.new("Processing", steps: 100)
-animation.start
-
-100.times do |i|
-  # do work
-  animation.increment_step
-  animation.add_alias("file_#{i}.txt")
-  sleep 0.1
-  animation.remove_alias("file_#{i}.txt")
-end
-
-animation.stop
-```
-
 ### custom configuration
 
 ```ruby
 Starlined.configure do |config|
-  config.verbose = true         # show verbose messages
+  config.verbose = true        # show verbose messages
   config.sleep_time = 0.5      # animation speed
   config.msg_ljust = 40        # message padding
 end
