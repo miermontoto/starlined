@@ -30,7 +30,7 @@ module Starlined
 
       execute(
         -> { Open3.capture3(command) },
-        print_err,
+        print_err: print_err,
         aka: aka,
         no_count: no_count,
         sudo: needs_sudo
