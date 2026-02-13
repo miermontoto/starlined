@@ -41,6 +41,18 @@ module Starlined
       @animation&.increment_step
     end
 
+    def execute(callback, print_err: true, aka: nil, no_count: false, sudo: false)
+      handle_sudo if sudo
+
+      start_step(aka: aka)
+      result = callback.call
+      end_step(aka: aka, no_count: no_count)
+
+      handle_error(result, print_err, aka) unless result.last.success?
+
+      result
+    end
+
     private
 
     def start_step(aka: nil)
@@ -62,18 +74,6 @@ module Starlined
 
         @animation.stop if @running_instances.zero? && @animation
       end
-    end
-
-    def execute(callback, print_err: true, aka: nil, no_count: false, sudo: false)
-      handle_sudo if sudo
-
-      start_step(aka: aka)
-      result = callback.call
-      end_step(aka: aka, no_count: no_count)
-
-      handle_error(result, print_err, aka) unless result.last.success?
-
-      result
     end
 
     def stop_animation
@@ -112,7 +112,7 @@ module Starlined
       puts result[1] # stderr
       puts result[0] if result[1].empty? # stdout si stderr está vacío
 
-      Messages.verbose("Exit code: #{result.last.exitstatus}")
+      Messages.vrbose("Exit code: #{result.last.exitstatus}")
       exit 1
     end
   end
