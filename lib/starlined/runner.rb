@@ -87,7 +87,7 @@ module Starlined
       needs_password = !system('sudo -n true &>/dev/null')
       return unless needs_password || RUBY_PLATFORM.include?('darwin')
 
-      stop_animation
+      @animation&.stop
 
       if needs_password
         # alertar al usuario con diferentes métodos
