@@ -1,11 +1,18 @@
 # frozen_string_literal: true
 
 require 'colorize'
+require 'io/console'
 
 module Starlined
   class Animation
-    attr_reader :thread, :message, :start_time, :steps, :current_steps
+    attr_reader :thread, :message, :start_time, :steps, :current_steps, :last_lines
     attr_accessor :aliases
+
+    # líneas pendientes de limpiar (persiste entre instancias para que Messages pueda acceder)
+    @pending_clear_lines = 1
+    class << self
+      attr_accessor :pending_clear_lines
+    end
 
     def initialize(message = 'Booting up', steps = 0)
       @message = message
@@ -25,6 +32,9 @@ module Starlined
 
       # semáforo para pasos
       @steps_semaphore = Mutex.new
+
+      # líneas visuales que ocupa la última impresión
+      @last_lines = 1
 
       @running = false
       @thread = nil
@@ -81,7 +91,10 @@ module Starlined
         extra = build_extra_info
 
         clear_line
-        print "\r[#{stars}] #{@message.ljust(config.msg_ljust)} #{extra}"
+        output = "[#{stars}] #{@message.ljust(config.msg_ljust)} #{extra}"
+        print "\r#{output}"
+        @last_lines = visible_line_count(output)
+        self.class.pending_clear_lines = @last_lines
 
         move_stars
         update_alias_timer
@@ -159,7 +172,25 @@ module Starlined
     end
 
     def clear_line
-      print "\r#{Starlined.configuration.clear_line_string}"
+      clear = Starlined.configuration.clear_line_string
+      # limpiar cada línea visual que ocupó la última impresión
+      (@last_lines - 1).times { print "\e[1A#{clear}" }
+      print "\r#{clear}"
+    end
+
+    def visible_line_count(str)
+      cols = terminal_columns
+      return 1 if cols <= 0
+
+      # longitud visible sin escape sequences ANSI
+      visible = str.gsub(/\e\[[0-9;]*m/, '')
+      [(visible.length.to_f / cols).ceil, 1].max
+    end
+
+    def terminal_columns
+      IO.console&.winsize&.last || 80
+    rescue StandardError
+      80
     end
   end
 end

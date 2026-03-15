@@ -49,7 +49,11 @@ module Starlined
     private
 
     def clear_line
-      print "\r#{Starlined.configuration.clear_line_string}"
+      clear = Starlined.configuration.clear_line_string
+      lines = Animation.pending_clear_lines || 1
+      (lines - 1).times { print "\e[1A#{clear}" }
+      print "\r#{clear}"
+      Animation.pending_clear_lines = 1
     end
   end
 end
